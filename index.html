@@ -25,6 +25,7 @@
    LAYOUT: 전체화면 앱 — 수집장 → 작업대 → 공개 카드 */
 :root{color-scheme:dark;--v1:#4a1828;--v2:#2a0b14;--v3:#170409;--ink:#f7ecdc;--mut:#cdb59c;--brass:#d9b56c;--brass2:#f3d58f}
 *{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 html,body{height:100%;margin:0}
 body{background:var(--v2);color:var(--ink);font:16px/1.55 'Gowun Dodum',system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -87,6 +88,40 @@ h1{font:700 34px/1.1 'Gowun Batang',serif;margin:0;text-wrap:balance}
 .sset h4{margin:0 0 4px;font:700 17px 'Gowun Batang',serif}
 .sset .meta{margin:0 0 12px}
 .ver{color:var(--brass2);font-variant-numeric:tabular-nums}
+.mailbox{margin-top:20px;padding:16px;border-radius:20px;background:linear-gradient(#3b2a40,#2a1b2e);border:1px solid rgba(243,213,143,.28);box-shadow:inset 0 2px 0 rgba(255,255,255,.06),0 12px 26px rgba(0,0,0,.35)}
+.mailbox .thead{margin-bottom:10px;align-items:center}
+.qlist{display:grid;gap:8px}
+.qcard{display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;padding:10px 14px 10px 10px;border:0;border-radius:16px;text-align:left;background:linear-gradient(#f6eedc,#e8d9ba);color:#3a2416;box-shadow:0 4px 10px rgba(0,0,0,.3)}
+.qcard img{width:52px;height:52px}
+.qcard b{display:block;font:700 15px 'Gowun Batang',serif}
+.qcard small{display:block;font-size:13px;color:#7a6050}
+.qcard i{font-style:normal;font-weight:700;font-size:14px;color:#8a2a35}
+.paper{background:linear-gradient(#f7efdd,#eadcbe)!important;color:#3a2416;border-color:rgba(138,42,53,.25)!important}
+.paper .lead{color:#8a2a35}.paper .meta{color:#7a6050}.paper .name{color:#2e1a10}
+.paper .btn.ghost{background:rgba(58,36,22,.08);color:#3a2416;box-shadow:inset 0 0 0 1px rgba(58,36,22,.25)}
+.letter{margin:10px 0 6px;font:16px/1.85 'Gowun Batang',serif;white-space:pre-wrap;word-break:keep-all}
+.sign{margin:0 0 6px;text-align:right;font:15px 'Gowun Batang',serif;color:#5a3a26}
+.lphoto{display:block;width:130px;height:130px;margin:10px auto 4px;border-radius:50%;box-shadow:0 8px 18px rgba(58,36,22,.35)}
+.gift{margin-top:12px;padding:10px 14px;border-radius:14px;background:rgba(138,42,53,.08);box-shadow:inset 0 0 0 1px rgba(138,42,53,.25)}
+.gift small{display:block;color:#8a2a35;font:700 13px 'Gowun Batang',serif}.gift p{margin:2px 0 0;font-size:15px}
+.llist{display:grid;gap:8px;margin-top:8px}
+.lrow{display:grid;gap:2px;width:100%;padding:12px 14px;border:0;border-radius:14px;text-align:left;background:rgba(255,255,255,.07);color:var(--ink)}
+.lrow b{font:700 15px 'Gowun Batang',serif}.lrow span{font-size:13px;color:var(--mut)}
+.slot.now .pocket{box-shadow:inset 0 8px 16px rgba(0,0,0,.75),0 0 0 2px rgba(243,213,143,.45)}
+.slot.locked .pocket b{font-size:15px}
+.seasonal .thead h2::after{content:'';display:inline-block}
+.ptag{position:absolute!important;top:10px;right:10px;z-index:1;padding:3px 9px;border-radius:999px;background:var(--brass2);color:#3a1a08;font-size:12px;font-weight:700}
+.htoast{position:fixed;z-index:9;top:calc(env(safe-area-inset-top) + 14px);left:50%;transform:translate(-50%,-12px);opacity:0;max-width:calc(100% - 32px);padding:10px 18px;border-radius:999px;background:linear-gradient(#f6da95,#c79a45);color:#3a1a08;font-weight:700;font-size:15px;box-shadow:0 8px 20px rgba(0,0,0,.4);pointer-events:none;transition:.35s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.htoast.on{opacity:1;transform:translate(-50%,0)}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:50px}
+.srow small{display:block;color:var(--mut);font-size:12px;line-height:1.3}
+.srow input[type=range]{width:48%;accent-color:var(--brass2);height:28px}
+.sw{appearance:none;-webkit-appearance:none;flex:none;width:50px;height:30px;border-radius:999px;background:rgba(255,255,255,.16);position:relative;cursor:pointer;transition:background .2s;margin:0}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#f7ecdc;transition:transform .2s}
+.sw:checked{background:var(--brass)}.sw:checked::after{transform:translateX(20px)}
+.sw:focus-visible,.srow input[type=range]:focus-visible{outline:3px solid var(--brass2);outline-offset:3px}
+body[data-tod=dusk] #play{background:radial-gradient(90% 60% at 50% 44%,#8e4038 0,#4f1d2c 45%,#22080f 100%)}
+body[data-tod=night] #play{background:radial-gradient(70% 48% at 50% 38%,#6e4a30 0,#2d1520 52%,#0e0407 100%)}
 .vcount{display:block;text-align:right;font-size:13px;color:var(--mut);margin-top:2px}
 .pocket img{border-radius:50%}
 .pips{display:flex;gap:4px;margin-top:-3px}
@@ -190,10 +225,16 @@ body[data-mode=view] #viewInfo{display:block}
     <p class="sub">직접 찾아내 손끝으로 닦은 동전·메달·뱃지가 장소별로 모여요.</p>
     <p class="empty" id="empty">아직 비어 있어요. 탐지기를 들고 첫 물건을 찾으러 가볼까요?</p>
     <div class="basket" id="basket" hidden><div class="thead"><h2>닦을 거리 바구니</h2><span id="bcount"></span></div><div class="brow" id="brow"></div></div>
+    <div class="mailbox" id="mail" hidden>
+      <div class="thead"><h2>작업대 우편함</h2><button class="chip" id="openLetters"><span id="lcount">편지함 0</span></button></div>
+      <div class="qlist" id="qlist"></div>
+    </div>
     <div id="places" style="margin-top:20px"></div>
+    <div class="tray seasonal" style="margin-top:16px"><div class="thead"><h2>계절 물건</h2><span id="scount">0 / 8</span></div><div class="grid" id="sgrid"></div></div>
     <div class="tray" style="margin-top:16px"><div class="thead"><h2>작업대 도구</h2><span id="cleanCount"></span></div><div class="tlist" id="tlist"></div></div>
   </div>
 </section>
+<div class="htoast" id="htoast" role="status"></div>
 <div class="cta"><button class="btn" id="next">찾으러 가기</button></div>
 
 <section id="play" class="screen" aria-label="닦기">
@@ -264,7 +305,7 @@ body[data-mode=view] #viewInfo{display:block}
       <figure><img id="rAfter" alt="닦은 후"><figcaption>닦은 후</figcaption></figure>
     </div>
     <p class="story" id="rStory"></p>
-    <div class="fortune"><small>오늘의 한마디</small><p id="rFortuneText"></p></div>
+    <div class="fortune" id="rFortune"><small>오늘의 한마디</small><p id="rFortuneText"></p></div>
     <p class="unlock" id="rUnlock" hidden></p>
     <div class="row2 h"><button class="btn" id="keep">수집장에 넣기</button><button class="btn ghost sq" id="rShare" aria-label="자랑 카드 만들기"><svg viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button></div>
   </div>
@@ -281,11 +322,49 @@ body[data-mode=view] #viewInfo{display:block}
       <input type="file" id="bkFile" accept="application/json,.json" hidden>
     </section>
     <section class="sset">
+      <h4>소리와 분위기</h4>
+      <label class="srow"><span>배경 소리</span><input type="range" id="ambVol" min="0" max="100" step="5" aria-label="배경 소리 크기"></label>
+      <label class="srow"><span>효과음</span><input type="checkbox" class="sw" id="sfxOn"></label>
+      <label class="srow"><span>시간대 분위기<small>실제 시각에 맞춰 낮·노을·밤으로 바뀌어요</small></span><input type="checkbox" class="sw" id="todOn"></label>
+    </section>
+    <section class="sset">
       <h4>앱 업데이트</h4>
       <p class="meta" id="verNote" role="status">지금 버전 <span class="ver" id="verNum"></span></p>
       <button class="btn ghost" id="updBtn">업데이트 확인하고 새로고침</button>
     </section>
     <button class="btn" id="sClose" style="margin-top:6px">닫기</button>
+  </div>
+</div>
+
+<div class="modal" id="reqModal" role="dialog" aria-modal="true" aria-labelledby="qFrom">
+  <div class="card paper">
+    <p class="lead">의뢰 편지</p>
+    <h3 class="name" id="qFrom"></h3>
+    <img class="foundimg" id="qImg" alt="">
+    <p class="letter" id="qBody"></p>
+    <p class="sign" id="qSign"></p>
+    <p class="meta" id="qMeta"></p>
+    <div class="row2" style="margin-top:14px"><button class="btn" id="qAccept">맡아서 닦기</button><button class="btn ghost" id="qLater">나중에</button></div>
+  </div>
+</div>
+
+<div class="modal" id="letterModal" role="dialog" aria-modal="true" aria-labelledby="lTitle" style="z-index:8">
+  <div class="card paper">
+    <p class="lead" id="lLead">편지가 도착했어요</p>
+    <h3 class="name" id="lTitle"></h3>
+    <img class="lphoto" id="lImg" alt="" hidden>
+    <p class="letter" id="lBody"></p>
+    <p class="sign" id="lSign"></p>
+    <div class="gift" id="lGift" hidden><small>선물</small><p id="lGiftText"></p></div>
+    <button class="btn" id="lClose" style="margin-top:14px">닫기</button>
+  </div>
+</div>
+
+<div class="modal" id="lettersModal" role="dialog" aria-modal="true" aria-labelledby="lsTitle">
+  <div class="card">
+    <h3 class="name" id="lsTitle" style="font-size:26px">편지함</h3>
+    <div class="llist" id="llist"></div>
+    <button class="btn ghost" id="lsClose" style="margin-top:12px">닫기</button>
   </div>
 </div>
 
@@ -298,6 +377,6 @@ body[data-mode=view] #viewInfo{display:block}
   </div>
 </div>
 
-<script type="module" src="app.js?v=2"></script>
+<script type="module" src="app.js?v=3"></script>
 </body>
 </html>
