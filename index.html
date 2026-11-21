@@ -162,6 +162,8 @@ body[data-tod=night] #play{background:radial-gradient(70% 48% at 50% 38%,#6e4a30
 .tool:not(.out):active .tsvg{transform:rotate(-38deg) translateY(-3px)}
 .tool.out .tsvg{opacity:.14}
 .tool.out .ring::before{background:#2a0c15;box-shadow:inset 0 0 0 2px rgba(243,213,143,.55);outline:2px dashed rgba(243,213,143,.35);outline-offset:-8px}
+.flip.rec{animation:pulse 1.5s ease-in-out infinite;box-shadow:0 0 0 2px var(--brass2)}
+body[data-mode=view] #flip,body[data-mode=result] #flip,body[data-mode=finale] #flip{display:none}
 .vcount{display:block;text-align:right;font-size:13px;color:var(--mut);margin-top:2px}
 .pocket img{border-radius:50%}
 .pips{display:flex;gap:4px;margin-top:-3px}
@@ -282,6 +284,7 @@ body[data-mode=view] #viewInfo{display:block}
   <div class="bar">
     <button class="back" id="back" aria-label="수집장으로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
     <h2 id="ttl">정체 모를 동전</h2>
+    <button class="back flip" id="flip" aria-label="동전 뒤집기"><svg viewBox="0 0 24 24"><path d="M5 10a7 7 0 0 1 12.5-3.5L19 8"/><path d="M19 4v4h-4"/><path d="M19 14a7 7 0 0 1-12.5 3.5L5 16"/><path d="M5 20v-4h4"/></svg></button>
     <span id="pct">0%</span>
   </div>
   <div class="prog"><i id="bar"></i></div>
@@ -290,8 +293,8 @@ body[data-mode=view] #viewInfo{display:block}
     <button class="tool" data-tool="brush" aria-pressed="false" aria-label="붓 집기"><span class="ring"><svg class="tsvg" viewBox="0 0 100 100"><rect x="45" y="2" width="10" height="56" rx="5" fill="#a0683a"/><rect x="42" y="56" width="16" height="14" rx="2" fill="#b9bec6"/><path d="M41 69h18l3 26H38z" fill="#e9d9b6"/></svg></span>붓</button>
     <button class="tool" data-tool="dropper" aria-pressed="false" aria-label="스포이트 집기"><span class="ring"><svg class="tsvg" viewBox="0 0 100 100"><ellipse cx="50" cy="20" rx="13" ry="17" fill="#d9544a"/><rect x="43" y="34" width="14" height="6" rx="2" fill="#b23a33"/><path d="M45 40h10v42l-3 13h-4l-3-13z" fill="#bfe3f2"/><path d="M46.5 62h7v20l-2.5 10h-2l-2.5-10z" fill="#7fc4e6"/></svg></span>스포이트</button>
     <button class="tool" data-tool="sponge" aria-pressed="false" aria-label="스펀지 집기"><span class="ring"><svg class="tsvg" viewBox="0 0 100 100"><rect x="22" y="40" width="56" height="14" rx="5" fill="#4f9a5c"/><rect x="22" y="50" width="56" height="45" rx="9" fill="#f5cf4a"/><g fill="#d9a92a"><circle cx="34" cy="64" r="3"/><circle cx="50" cy="72" r="4"/><circle cx="64" cy="62" r="2.5"/><circle cx="40" cy="84" r="3.5"/></g></svg></span>스펀지</button>
+    <button class="tool" data-tool="spray" aria-pressed="false" aria-label="분무기 집기"><span class="ring"><svg class="tsvg" viewBox="0 0 100 100"><rect x="30" y="4" width="40" height="46" rx="10" fill="#7fc4e6"/><path d="M30 34h40v6c0 6-4 10-10 10H40c-6 0-10-4-10-10z" fill="#5aa9d2"/><rect x="38" y="50" width="24" height="10" rx="2" fill="#e8eef3"/><path d="M36 60h28l-4 22H40z" fill="#f2f5f8"/><path d="M62 64c10 2 14 10 10 18" stroke="#d9544a" stroke-width="6" fill="none" stroke-linecap="round"/><rect x="45" y="82" width="10" height="13" rx="2" fill="#d9544a"/></svg></span>분무기</button>
     <button class="tool" data-tool="cloth" aria-pressed="false" aria-label="광택천 집기"><span class="ring"><svg class="tsvg" viewBox="0 0 100 100"><path d="M28 40c10-8 34-10 46 0 6 6 8 20 4 34-4 14-10 21-28 21S24 88 22 74c-2-14 0-28 6-34z" fill="#7fa8d9"/><path d="M34 46c8 10 8 26 4 40M52 42c4 14 6 30 2 50M66 48c2 10 0 24-4 36" stroke="#5f88bb" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>광택천</button>
-    <button class="tool" id="flip"><span class="ring"><svg viewBox="0 0 32 32"><path d="M7 13a9 9 0 0 1 16-4l2 2"/><path d="M25 5v6h-6"/><path d="M25 19a9 9 0 0 1-16 4l-2-2"/><path d="M7 27v-6h6"/></svg></span>뒤집기</button>
   </div>
   <div id="viewInfo">
     <div class="card">
@@ -420,6 +423,6 @@ body[data-mode=view] #viewInfo{display:block}
   </div>
 </div>
 
-<script type="module" src="app.js?v=6"></script>
+<script type="module" src="app.js?v=7"></script>
 </body>
 </html>
