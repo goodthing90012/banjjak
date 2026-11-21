@@ -125,7 +125,7 @@ body[data-tod=night] #play{background:radial-gradient(70% 48% at 50% 38%,#6e4a30
 .decor{position:absolute;inset:0;pointer-events:none}
 .dc{position:absolute;width:min(22vw,100px);aspect-ratio:1;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45))}
 .dc svg{width:100%;height:100%;overflow:visible}
-.ds-0{left:2%;top:58px}.ds-1{right:2%;top:58px}.ds-2{left:2%;bottom:6px}.ds-3{right:2%;bottom:6px}.ds-4{left:27%;bottom:0;width:min(19vw,84px)}.ds-5{right:27%;bottom:0;width:min(19vw,84px)}
+.ds-0{left:2%;top:58px}.ds-1{right:2%;top:58px}.ds-2{left:2%;bottom:6px}.ds-3{right:2%;bottom:6px}
 .dc-lantern{filter:drop-shadow(0 0 24px rgba(255,200,110,.8)) drop-shadow(0 6px 8px rgba(0,0,0,.45))}
 .steam path{animation:steam 3.2s ease-in-out infinite}.steam path+path{animation-delay:1.2s}
 @keyframes steam{0%{opacity:0;transform:translateY(6px)}50%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
@@ -153,6 +153,15 @@ body[data-tod=night] #play{background:radial-gradient(70% 48% at 50% 38%,#6e4a30
 .jrow p{margin:0;font:15px/1.6 'Gowun Batang',serif}
 .jrow span{display:block;margin-top:2px;font-size:12px;color:var(--mut)}
 #lettersModal .card{display:flex;flex-direction:column}
+#held{position:absolute;left:0;top:0;z-index:3;width:96px;height:96px;pointer-events:none;transform-origin:48px 91px;filter:drop-shadow(0 10px 10px rgba(0,0,0,.45));transition:transform .18s ease-out}
+#held.act{transition:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.45))}
+#held svg{width:100%;height:100%;overflow:visible}
+#held.squeeze .bulb{animation:squeeze .25s ease-out;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes squeeze{40%{transform:scale(.82,.7)}}
+.ring svg.tsvg{width:40px;height:40px;stroke:none;transform:rotate(-38deg);transition:opacity .2s,transform .2s}
+.tool:not(.out):active .tsvg{transform:rotate(-38deg) translateY(-3px)}
+.tool.out .tsvg{opacity:.14}
+.tool.out .ring::before{background:#2a0c15;box-shadow:inset 0 0 0 2px rgba(243,213,143,.55);outline:2px dashed rgba(243,213,143,.35);outline-offset:-8px}
 .vcount{display:block;text-align:right;font-size:13px;color:var(--mut);margin-top:2px}
 .pocket img{border-radius:50%}
 .pips{display:flex;gap:4px;margin-top:-3px}
@@ -262,7 +271,7 @@ body[data-mode=view] #viewInfo{display:block}
     </div>
     <div id="places" style="margin-top:20px"></div>
     <div class="tray seasonal" style="margin-top:16px"><div class="thead"><h2>계절 물건</h2><span id="scount">0 / 8</span></div><div class="grid" id="sgrid"></div></div>
-    <div class="tray" style="margin-top:16px"><div class="thead"><h2>작업대 소품</h2><span id="dcount"></span></div><p class="meta" style="margin:-6px 0 12px">의뢰 선물로 받은 소품을 작업대에 6개까지 놓을 수 있어요.</p><div class="dgrid" id="dgrid"></div></div>
+    <div class="tray" style="margin-top:16px"><div class="thead"><h2>작업대 소품</h2><span id="dcount"></span></div><p class="meta" style="margin:-6px 0 12px">의뢰 선물로 받은 소품을 작업대에 4개까지 놓을 수 있어요.</p><div class="dgrid" id="dgrid"></div></div>
     <div class="tray" style="margin-top:16px"><div class="thead"><h2>작업대 도구</h2><span id="cleanCount"></span></div><div class="tlist" id="tlist"></div></div>
   </div>
 </section>
@@ -276,12 +285,12 @@ body[data-mode=view] #viewInfo{display:block}
     <span id="pct">0%</span>
   </div>
   <div class="prog"><i id="bar"></i></div>
-  <div id="stage"><div id="decor" class="decor"></div><div id="hint"></div><div id="toast"></div></div>
+  <div id="stage"><div id="decor" class="decor"></div><div id="hint"></div><div id="toast"></div><div id="held" hidden aria-hidden="true"></div></div>
   <div id="tools">
-    <button class="tool" data-tool="brush" aria-pressed="true"><span class="ring"><svg viewBox="0 0 32 32"><path d="M20 3l-5 11"/><path d="M11 14h8l2 4H9z"/><path d="M9 18l-2 10M12 18l-1 10M15 18v10M18 18l1 10M21 18l2 10"/></svg></span>붓</button>
-    <button class="tool" data-tool="dropper" aria-pressed="false"><span class="ring"><svg viewBox="0 0 32 32"><path d="M21 4l7 7-3 3-7-7z"/><path d="M19 8l5 5-11 11-4 1 1-4z"/><path d="M7 30c-2 0-3-1-3-3 0-2 3-5 3-5s3 3 3 5c0 2-1 3-3 3z"/></svg></span>스포이트</button>
-    <button class="tool" data-tool="sponge" aria-pressed="false"><span class="ring"><svg viewBox="0 0 32 32"><rect x="5" y="9" width="22" height="15" rx="4"/><circle cx="11" cy="15" r="1.4"/><circle cx="17" cy="19" r="1.6"/><circle cx="21" cy="14" r="1.2"/><path d="M9 6c1-2 3-2 4 0M19 5c1-2 3-2 4 0"/></svg></span>스펀지</button>
-    <button class="tool" data-tool="cloth" aria-pressed="false"><span class="ring"><svg viewBox="0 0 32 32"><path d="M6 8c4-2 6 2 10 0s6-2 10 0v16c-4-2-6 2-10 0s-6-2-10 0z"/><path d="M16 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg></span>광택천</button>
+    <button class="tool" data-tool="brush" aria-pressed="false" aria-label="붓 집기"><span class="ring"><svg class="tsvg" viewBox="0 0 100 100"><rect x="45" y="2" width="10" height="56" rx="5" fill="#a0683a"/><rect x="42" y="56" width="16" height="14" rx="2" fill="#b9bec6"/><path d="M41 69h18l3 26H38z" fill="#e9d9b6"/></svg></span>붓</button>
+    <button class="tool" data-tool="dropper" aria-pressed="false" aria-label="스포이트 집기"><span class="ring"><svg class="tsvg" viewBox="0 0 100 100"><ellipse cx="50" cy="20" rx="13" ry="17" fill="#d9544a"/><rect x="43" y="34" width="14" height="6" rx="2" fill="#b23a33"/><path d="M45 40h10v42l-3 13h-4l-3-13z" fill="#bfe3f2"/><path d="M46.5 62h7v20l-2.5 10h-2l-2.5-10z" fill="#7fc4e6"/></svg></span>스포이트</button>
+    <button class="tool" data-tool="sponge" aria-pressed="false" aria-label="스펀지 집기"><span class="ring"><svg class="tsvg" viewBox="0 0 100 100"><rect x="22" y="40" width="56" height="14" rx="5" fill="#4f9a5c"/><rect x="22" y="50" width="56" height="45" rx="9" fill="#f5cf4a"/><g fill="#d9a92a"><circle cx="34" cy="64" r="3"/><circle cx="50" cy="72" r="4"/><circle cx="64" cy="62" r="2.5"/><circle cx="40" cy="84" r="3.5"/></g></svg></span>스펀지</button>
+    <button class="tool" data-tool="cloth" aria-pressed="false" aria-label="광택천 집기"><span class="ring"><svg class="tsvg" viewBox="0 0 100 100"><path d="M28 40c10-8 34-10 46 0 6 6 8 20 4 34-4 14-10 21-28 21S24 88 22 74c-2-14 0-28 6-34z" fill="#7fa8d9"/><path d="M34 46c8 10 8 26 4 40M52 42c4 14 6 30 2 50M66 48c2 10 0 24-4 36" stroke="#5f88bb" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>광택천</button>
     <button class="tool" id="flip"><span class="ring"><svg viewBox="0 0 32 32"><path d="M7 13a9 9 0 0 1 16-4l2 2"/><path d="M25 5v6h-6"/><path d="M25 19a9 9 0 0 1-16 4l-2-2"/><path d="M7 27v-6h6"/></svg></span>뒤집기</button>
   </div>
   <div id="viewInfo">
@@ -411,6 +420,6 @@ body[data-mode=view] #viewInfo{display:block}
   </div>
 </div>
 
-<script type="module" src="app.js?v=5"></script>
+<script type="module" src="app.js?v=6"></script>
 </body>
 </html>
