@@ -164,6 +164,18 @@ body[data-tod=night] #play{background:radial-gradient(70% 48% at 50% 38%,#6e4a30
 .tool.out .ring::before{background:#2a0c15;box-shadow:inset 0 0 0 2px rgba(243,213,143,.55);outline:2px dashed rgba(243,213,143,.35);outline-offset:-8px}
 .flip.rec{animation:pulse 1.5s ease-in-out infinite;box-shadow:0 0 0 2px var(--brass2)}
 body[data-mode=view] #flip,body[data-mode=result] #flip,body[data-mode=finale] #flip{display:none}
+.vtip{position:absolute;z-index:4;top:14px;left:50%;transform:translate(-50%,-6px);opacity:0;max-width:calc(100% - 28px);padding:8px 16px;border-radius:999px;background:rgba(20,5,10,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;transition:.35s}
+.vtip.on{opacity:1;transform:translate(-50%,0)}
+.peekbar{position:fixed;z-index:6;left:0;right:0;bottom:0;display:none;justify-content:center;padding:16px 18px calc(env(safe-area-inset-bottom) + 18px)}
+body[data-mode=peek] .peekbar{display:flex}
+body[data-mode=peek] #tools,body[data-mode=peek] .prog,body[data-mode=peek] #pct,body[data-mode=peek] #hint,body[data-mode=peek] #flip{visibility:hidden}
+body[data-mode=result] #back,body[data-mode=peek] #back{visibility:hidden}
+#viewInfo .card{position:relative}
+.vfold{position:absolute;top:8px;right:8px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.07);display:grid;place-items:center}
+.vfold svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s}
+#viewInfo.mini .vfold svg{transform:rotate(180deg)}
+#viewInfo.mini .story,#viewInfo.mini #vFortune,#viewInfo.mini .row2{display:none}
+#viewInfo .chips{padding-right:48px}
 .vcount{display:block;text-align:right;font-size:13px;color:var(--mut);margin-top:2px}
 .pocket img{border-radius:50%}
 .pips{display:flex;gap:4px;margin-top:-3px}
@@ -265,7 +277,7 @@ body[data-mode=view] #viewInfo{display:block}
 <section id="home" class="screen" aria-label="수집장">
   <div class="case">
     <div class="head"><h1>반짝 수집장</h1><div class="hr"><span><span class="count" id="count">0 / 28</span><span class="vcount" id="vcount"></span></span><button class="gear" id="gear" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div></div>
-    <p class="sub">직접 찾아내 손끝으로 닦은 동전·메달·뱃지가 장소별로 모여요.</p>
+    <p class="sub">직접 찾아내 손끝으로 닦은 동전·메달·뱃지가 장소별로 모여요. 모은 물건을 누르면 돌려볼 수 있어요.</p>
     <p class="empty" id="empty">아직 비어 있어요. 탐지기를 들고 첫 물건을 찾으러 가볼까요?</p>
     <div class="basket" id="basket" hidden><div class="thead"><h2>닦을 거리 바구니</h2><span id="bcount"></span></div><div class="brow" id="brow"></div></div>
     <div class="mailbox" id="mail" hidden>
@@ -279,6 +291,7 @@ body[data-mode=view] #viewInfo{display:block}
   </div>
 </section>
 <div class="htoast" id="htoast" role="status"></div>
+<div class="peekbar"><button class="btn" id="peekDone">다 봤어요</button></div>
 <div class="cta"><button class="btn" id="next">찾으러 가기</button></div>
 
 <section id="play" class="screen" aria-label="닦기">
@@ -289,7 +302,7 @@ body[data-mode=view] #viewInfo{display:block}
     <span id="pct">0%</span>
   </div>
   <div class="prog"><i id="bar"></i></div>
-  <div id="stage"><div id="decor" class="decor"></div><div id="hint"></div><div id="toast"></div><div id="held" hidden aria-hidden="true"></div></div>
+  <div id="stage"><div id="decor" class="decor"></div><div id="hint"></div><div id="vtip" class="vtip" role="status"></div><div id="toast"></div><div id="held" hidden aria-hidden="true"></div></div>
   <div id="tools">
     <button class="tool" data-tool="brush" aria-pressed="false" aria-label="붓 집기"><span class="ring"><svg class="tsvg" viewBox="0 0 100 100"><rect x="45" y="2" width="10" height="56" rx="5" fill="#a0683a"/><rect x="42" y="56" width="16" height="14" rx="2" fill="#b9bec6"/><path d="M41 69h18l3 26H38z" fill="#e9d9b6"/></svg></span><span class="tl">붓</span></button>
     <button class="tool" data-tool="dropper" aria-pressed="false" aria-label="스포이트 집기"><span class="ring"><svg class="tsvg" viewBox="0 0 100 100"><ellipse cx="50" cy="20" rx="13" ry="17" fill="#d9544a"/><rect x="43" y="34" width="14" height="6" rx="2" fill="#b23a33"/><path d="M45 40h10v42l-3 13h-4l-3-13z" fill="#bfe3f2"/><path d="M46.5 62h7v20l-2.5 10h-2l-2.5-10z" fill="#7fc4e6"/></svg></span><span class="tl">스포이트</span></button>
@@ -299,6 +312,7 @@ body[data-mode=view] #viewInfo{display:block}
   </div>
   <div id="viewInfo">
     <div class="card">
+      <button class="vfold" id="vFold" aria-label="설명 접기" aria-expanded="true"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
       <div class="chips" id="vchips" aria-label="변형"></div>
       <p class="meta" id="vMeta"></p>
       <p class="story" id="vStory"></p>
@@ -354,6 +368,7 @@ body[data-mode=view] #viewInfo{display:block}
     <div class="fortune" id="rFortune"><small>오늘의 한마디</small><p id="rFortuneText"></p></div>
     <p class="unlock" id="rUnlock" hidden></p>
     <div class="row2 h"><button class="btn" id="keep">수집장에 넣기</button><button class="btn ghost sq" id="rShare" aria-label="자랑 카드 만들기"><svg viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button></div>
+    <button class="linkbtn" id="rPeek">돌려보며 구경하기</button>
   </div>
 </div>
 
@@ -424,6 +439,6 @@ body[data-mode=view] #viewInfo{display:block}
   </div>
 </div>
 
-<script type="module" src="app.js?v=18"></script>
+<script type="module" src="app.js?v=19"></script>
 </body>
 </html>
