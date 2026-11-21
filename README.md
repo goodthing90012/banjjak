@@ -15,7 +15,8 @@
 
 - `sw.js` 맨 위 `VERSION` 숫자를 올려야 사용자 기기에 새 버전이 내려갑니다.
 - `index.html`의 `app.js?v=` 숫자도 같이 올리면 확실합니다.
-- 새 버전은 앱을 한 번 닫았다 다시 열면 적용됩니다.
+- 사용자는 수집장 오른쪽 위 **설정 → 업데이트 확인하고 새로고침**으로 바로 새 버전을 받을 수 있습니다. 새 버전이 감지되면 설정 버튼에 빨간 점이 뜹니다.
+- 서비스 워커는 GitHub Pages 캐시를 건너뛰고 원본 파일을 받아오므로, 올린 직후에도 새 버전이 내려갑니다.
 
 ## 파일 구성
 
@@ -25,7 +26,7 @@
 | `app.js` | 게임 코드 (번들) |
 | `vendor/three.module.min.js` | 3D 라이브러리 three.js r170 (MIT, `vendor/THREE-LICENSE.txt`) |
 | `vendor/jsm/environments/RoomEnvironment.js` | 금속 반사용 조명 환경 |
-| `sw.js` | 오프라인 캐시 |
+| `sw.js` | 오프라인 캐시 (버전 관리) |
 | `manifest.webmanifest`, `icons/` | 홈 화면 앱 정보와 아이콘 |
 
 ## 저장

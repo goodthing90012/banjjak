@@ -1,5 +1,5 @@
 // 반짝 수집장 서비스 워커 — 업데이트할 때마다 VERSION을 올리세요.
-const VERSION = 'banjjak-v1';
+const VERSION = 'banjjak-v2';
 const FONTS = 'banjjak-fonts';
 const ASSETS = [
   './',
@@ -15,8 +15,11 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  // cache: 'reload' — GitHub Pages의 10분 캐시를 건너뛰고 원본을 받아옴
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(ASSETS.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
+
+self.addEventListener('message', e => { if (e.data === 'skipWaiting') self.skipWaiting(); });
 
 self.addEventListener('activate', e => {
   e.waitUntil(

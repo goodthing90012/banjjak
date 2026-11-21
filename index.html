@@ -79,6 +79,14 @@ h1{font:700 34px/1.1 'Gowun Batang',serif;margin:0;text-wrap:balance}
 .row2{display:grid;gap:10px}
 .row2.h{grid-template-columns:minmax(0,1fr) auto}
 .row2.half{grid-template-columns:repeat(2,minmax(0,1fr))}.row2.half .btn{font-size:15px;padding:0 12px}
+ .hr{display:flex;align-items:flex-start;gap:10px}
+.gear{position:relative;flex:none;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.09);display:grid;place-items:center;color:var(--ink)}
+.gear svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.gear.dot::after{content:'';position:absolute;top:6px;right:6px;width:10px;height:10px;border-radius:50%;background:#ff8a7a;box-shadow:0 0 0 2px var(--v1)}
+.sset{padding:14px 0;border-top:1px solid rgba(217,181,108,.2)}
+.sset h4{margin:0 0 4px;font:700 17px 'Gowun Batang',serif}
+.sset .meta{margin:0 0 12px}
+.ver{color:var(--brass2);font-variant-numeric:tabular-nums}
 .vcount{display:block;text-align:right;font-size:13px;color:var(--mut);margin-top:2px}
 .pocket img{border-radius:50%}
 .pips{display:flex;gap:4px;margin-top:-3px}
@@ -178,19 +186,12 @@ body[data-mode=view] #viewInfo{display:block}
 
 <section id="home" class="screen" aria-label="수집장">
   <div class="case">
-    <div class="head"><h1>반짝 수집장</h1><span><span class="count" id="count">0 / 28</span><span class="vcount" id="vcount"></span></span></div>
+    <div class="head"><h1>반짝 수집장</h1><div class="hr"><span><span class="count" id="count">0 / 28</span><span class="vcount" id="vcount"></span></span><button class="gear" id="gear" aria-label="설정"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div></div>
     <p class="sub">직접 찾아내 손끝으로 닦은 동전·메달·뱃지가 장소별로 모여요.</p>
     <p class="empty" id="empty">아직 비어 있어요. 탐지기를 들고 첫 물건을 찾으러 가볼까요?</p>
     <div class="basket" id="basket" hidden><div class="thead"><h2>닦을 거리 바구니</h2><span id="bcount"></span></div><div class="brow" id="brow"></div></div>
     <div id="places" style="margin-top:20px"></div>
     <div class="tray" style="margin-top:16px"><div class="thead"><h2>작업대 도구</h2><span id="cleanCount"></span></div><div class="tlist" id="tlist"></div></div>
-    <div class="tray" style="margin-top:16px">
-      <div class="thead"><h2>기록 백업</h2></div>
-      <p class="meta" style="margin:0 0 12px">기기를 바꿀 때 이 파일로 수집 기록을 옮길 수 있어요.</p>
-      <div class="row2 half"><button class="btn ghost" id="bkSave">백업 파일 저장</button><button class="btn ghost" id="bkLoad">백업 불러오기</button></div>
-      <p class="meta" id="bkNote" role="status" style="margin:10px 0 0;min-height:1.4em"></p>
-      <input type="file" id="bkFile" accept="application/json,.json" hidden>
-    </div>
   </div>
 </section>
 <div class="cta"><button class="btn" id="next">찾으러 가기</button></div>
@@ -269,6 +270,25 @@ body[data-mode=view] #viewInfo{display:block}
   </div>
 </div>
 
+<div class="modal" id="settings" role="dialog" aria-modal="true" aria-labelledby="sTitle" style="z-index:6">
+  <div class="card">
+    <h3 class="name" id="sTitle" style="font-size:26px;margin-bottom:10px">설정</h3>
+    <section class="sset">
+      <h4>기록 백업</h4>
+      <p class="meta">기기를 바꿀 때 이 파일로 수집 기록을 옮길 수 있어요.</p>
+      <div class="row2 half"><button class="btn ghost" id="bkSave">백업 파일 저장</button><button class="btn ghost" id="bkLoad">백업 불러오기</button></div>
+      <p class="meta" id="bkNote" role="status" style="margin:10px 0 0;min-height:1.4em"></p>
+      <input type="file" id="bkFile" accept="application/json,.json" hidden>
+    </section>
+    <section class="sset">
+      <h4>앱 업데이트</h4>
+      <p class="meta" id="verNote" role="status">지금 버전 <span class="ver" id="verNum"></span></p>
+      <button class="btn ghost" id="updBtn">업데이트 확인하고 새로고침</button>
+    </section>
+    <button class="btn" id="sClose" style="margin-top:6px">닫기</button>
+  </div>
+</div>
+
 <div class="modal" id="share" role="dialog" aria-modal="true" aria-labelledby="shareTitle" style="z-index:7">
   <div class="card">
     <h3 class="name" id="shareTitle" style="font-size:24px">자랑 카드</h3>
@@ -278,6 +298,6 @@ body[data-mode=view] #viewInfo{display:block}
   </div>
 </div>
 
-<script type="module" src="app.js?v=1"></script>
+<script type="module" src="app.js?v=2"></script>
 </body>
 </html>
