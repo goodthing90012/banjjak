@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>반짝 수집장</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2a0b14">
+<meta name="description" content="찾고, 닦고, 모으는 동전·메달·뱃지 힐링 게임">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="반짝 수집장">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js","three/examples/jsm/":"./vendor/jsm/"}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+/* VOICE: 조용하고 다정한 손작업, 끝나면 뿌듯함
+   IDEA: 벨벳을 깐 수집가의 동전 케이스와 램프 아래 작업대
+   PICTURE: 손끝으로 닦는 3D 동전 자체
+   COLOUR and TYPE: 버건디 벨벳, 크림색 글씨, 놋쇠 포인트 / Gowun Batang + Gowun Dodum
+   LAYOUT: 전체화면 앱 — 수집장 → 작업대 → 공개 카드 */
+:root{color-scheme:dark;--v1:#4a1828;--v2:#2a0b14;--v3:#170409;--ink:#f7ecdc;--mut:#cdb59c;--brass:#d9b56c;--brass2:#f3d58f}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--v2);color:var(--ink);font:16px/1.55 'Gowun Dodum',system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--brass2);outline-offset:3px}
+.screen{position:fixed;inset:0;display:none}
+body[data-screen=home] #home{display:block}
+body[data-screen=play] #play{display:flex}
+body[data-screen=find] #find{display:block}
+
+/* 수집장 */
+#home{overflow-y:auto;background:radial-gradient(120% 70% at 50% 0%,#5c2034 0,var(--v1) 35%,var(--v2) 75%,var(--v3));padding:calc(env(safe-area-inset-top) + 28px) 18px calc(env(safe-area-inset-bottom) + 120px)}
+.case{max-width:560px;margin:0 auto}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+h1{font:700 34px/1.1 'Gowun Batang',serif;margin:0;text-wrap:balance}
+.count{font:700 18px 'Gowun Batang',serif;color:var(--brass2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sub{color:var(--mut);margin:8px 0 0}
+.tray{margin-top:22px;padding:22px 16px 18px;border-radius:24px;background:linear-gradient(#3a1120,#2b0c17);border:1px solid rgba(217,181,108,.28);box-shadow:inset 0 2px 0 rgba(255,255,255,.05),inset 0 -10px 26px rgba(0,0,0,.45),0 20px 40px rgba(0,0,0,.35)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 10px}
+.tray+.tray{margin-top:16px}
+.thead{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 14px}
+.thead h2{margin:0;font:700 19px 'Gowun Batang',serif}
+.thead span{color:var(--brass2);font:700 15px 'Gowun Batang',serif;font-variant-numeric:tabular-nums}
+.basket{margin-top:20px;padding:16px;border-radius:20px;background:linear-gradient(#6a4a2c,#4e341d);border:1px solid rgba(243,213,143,.3);box-shadow:inset 0 2px 0 rgba(255,255,255,.08),0 12px 26px rgba(0,0,0,.35)}
+.basket .thead{margin-bottom:10px}
+.brow{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.bitem{flex:none;width:72px;border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;color:#f3dfc0}
+.bitem img{width:64px;height:64px;filter:drop-shadow(0 4px 5px rgba(0,0,0,.45))}
+.psheet .card{max-height:calc(100dvh - 40px);overflow-y:auto}
+.pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0 12px}
+.pcard{position:relative;height:118px;border:0;border-radius:18px;padding:12px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;text-align:left;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15),0 6px 14px rgba(0,0,0,.35)}
+.pcard::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(20,6,10,.7))}
+.pcard span{position:relative;z-index:1}
+.pname{font:700 18px 'Gowun Batang',serif;color:#fff}
+.pnum{font-size:13px;color:#f3e3c8}
+.pc-playground{background:radial-gradient(circle at 78% 30%,#e8604c 0 15px,#b8402f 16px 20px,transparent 21px),radial-gradient(circle at 30% 60%,rgba(150,105,55,.25),transparent 40%),#e3c68e}
+.pc-beach{background:radial-gradient(ellipse 60% 20% at 50% 38%,#fff 0 30%,transparent 32%),linear-gradient(#1d6f92 0,#5cc2d3 34%,#d6ba88 36%,#f2ddb0)}
+.pc-fountain{background:linear-gradient(rgba(30,110,150,.25),rgba(30,110,150,.25)),repeating-conic-gradient(#5aaec6 0 25%,#68bad0 0 50%) 0 0/28px 28px}
+.pc-drawer{background:radial-gradient(circle at 70% 32%,#c94f6d 0 12px,#d8b98a 13px 17px,transparent 18px),radial-gradient(circle at 34% 36%,#f2efe6 0 7px,transparent 8px),radial-gradient(circle at 48% 22%,#3d6fa8 0 6px,transparent 7px),repeating-linear-gradient(90deg,#6e4529 0 46px,#5e3a22 46px 48px)}
+.linkbtn{display:block;margin:10px auto 0;min-height:44px;border:0;background:none;color:var(--mut);font-size:15px;text-decoration:underline;text-underline-offset:3px}
+/* 찾기 */
+#find{background:#20070e}
+#fstage{position:absolute;inset:0}
+#fcv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#find .bar{position:absolute;left:0;right:0;top:0;z-index:2;background:linear-gradient(rgba(20,6,10,.7),transparent)}
+#fttl{flex:1;margin:0;font:700 20px/1.2 'Gowun Batang',serif;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.sig{display:flex;align-items:flex-end;gap:3px;height:22px;padding:0 4px}
+.sig i{width:6px;border-radius:2px;background:rgba(255,255,255,.28);transition:background .15s}
+.sig i:nth-child(1){height:6px}.sig i:nth-child(2){height:10px}.sig i:nth-child(3){height:14px}.sig i:nth-child(4){height:18px}.sig i:nth-child(5){height:22px}
+.sig i.on{background:var(--brass2);box-shadow:0 0 6px rgba(243,213,143,.7)}
+#fhint{position:absolute;z-index:2;bottom:calc(env(safe-area-inset-bottom) + 26px);left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:10px 18px;border-radius:999px;background:rgba(20,5,10,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;transition:opacity .3s}
+.foundimg{display:block;width:120px;height:120px;margin:6px auto 4px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+.row2{display:grid;gap:10px}
+.row2.h{grid-template-columns:minmax(0,1fr) auto}
+.row2.half{grid-template-columns:repeat(2,minmax(0,1fr))}.row2.half .btn{font-size:15px;padding:0 12px}
+.vcount{display:block;text-align:right;font-size:13px;color:var(--mut);margin-top:2px}
+.pocket img{border-radius:50%}
+.pips{display:flex;gap:4px;margin-top:-3px}
+.pips i{width:6px;height:6px;border-radius:50%;background:rgba(255,235,210,.14)}
+.pips i.on.p-normal{background:#e9dcc6}.pips i.on.p-rainbow{background:conic-gradient(#ffbe5a,#eb5aaf,#5078f5,#32cdbe,#ffbe5a)}
+.pips i.on.p-error{background:#ff8a7a}.pips i.on.p-lucky{background:#ffd56a;box-shadow:0 0 5px #ffd56a}
+.bitem.special img{filter:drop-shadow(0 0 6px rgba(255,213,106,.85)) drop-shadow(0 4px 5px rgba(0,0,0,.45))}
+#found.special .foundimg{filter:drop-shadow(0 0 14px rgba(255,213,106,.9)) drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+.tlist{display:grid;gap:8px}
+.titem{display:grid;gap:1px;padding:10px 14px;border-radius:14px;background:rgba(0,0,0,.22);color:var(--mut);font-size:13px}
+.titem b{font:700 15px 'Gowun Batang',serif;color:rgba(247,236,220,.55)}
+.titem.on{background:rgba(243,213,143,.12);box-shadow:inset 0 0 0 1px rgba(243,213,143,.35);color:#ead9bd}
+.titem.on b{color:var(--brass2)}
+.tool.up .ring::after{content:'';position:absolute;top:2px;right:2px;width:10px;height:10px;border-radius:50%;background:var(--brass2);box-shadow:0 0 6px var(--brass2)}
+.fortune{margin:0 0 14px;padding:12px 16px;border-radius:16px;background:rgba(0,0,0,.25);box-shadow:inset 0 0 0 1px rgba(217,181,108,.35)}
+.fortune small{display:block;color:var(--brass2);font:700 13px 'Gowun Batang',serif;margin-bottom:2px}
+.fortune p{margin:0;font-size:16px;line-height:1.5}
+.unlock{margin:0 0 14px;padding:10px 14px;border-radius:14px;background:linear-gradient(#f6da95,#c79a45);color:#3a1a08;font-weight:700;font-size:14px}
+.modal .card{max-height:calc(100dvh - 32px - env(safe-area-inset-bottom));overflow-y:auto}
+.sq{width:54px;min-height:54px;padding:0;display:grid;place-items:center}
+.sq svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.chip{min-height:34px;padding:0 12px;border-radius:999px;border:0;font-size:13px;background:rgba(255,255,255,.08);color:var(--ink);display:inline-grid;place-items:center}
+.chip.on{background:var(--brass2);color:#3a1a08;font-weight:700}
+.chip.off{color:rgba(247,236,220,.3)}
+#viewInfo .card{max-height:44dvh;overflow-y:auto}
+.shareimg{display:block;width:100%;max-width:300px;aspect-ratio:1080/1350;margin:4px auto 10px;border-radius:12px;background:#2a0b14;box-shadow:0 10px 30px rgba(0,0,0,.5);user-select:auto;-webkit-user-select:auto;-webkit-touch-callout:default}
+.pc-river{background:radial-gradient(circle at 62% 40%,#d8d0c2 0 9px,transparent 10px),radial-gradient(circle at 84% 66%,#857a6c 0 12px,transparent 13px),radial-gradient(circle at 54% 72%,#c8bfb0 0 8px,transparent 9px),radial-gradient(circle at 78% 22%,#a39a8a 0 10px,transparent 11px),linear-gradient(90deg,#3f8aa0 0 30%,#b4a995 33%)}
+.pc-station{background:linear-gradient(90deg,transparent 46%,#dfe4ea 46% 49%,transparent 49% 76%,#dfe4ea 76% 79%,transparent 79%),repeating-linear-gradient(0deg,transparent 0 14px,#6b4a32 14px 24px),linear-gradient(90deg,#c9c3b8 0 16%,#f2c230 16% 21%,#8f8a82 21%)}
+.pc-antique{background:radial-gradient(circle at 74% 32%,#f4ecd8 0 13px,#d9b56c 14px 19px,transparent 20px),radial-gradient(circle at 30% 30%,#a5822f 0 7px,#c9a14a 8px 15px,transparent 16px),repeating-linear-gradient(60deg,rgba(0,0,0,.14) 0 20px,transparent 20px 44px),#5a1820}
+.slot{appearance:none;border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.locked{cursor:default}
+.pocket{position:relative;width:100%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 50% 38%,#14040a,#2e0f1a 70%,#3e1523);box-shadow:inset 0 8px 16px rgba(0,0,0,.75),inset 0 -2px 3px rgba(255,255,255,.06),0 1px 0 rgba(255,255,255,.07)}
+.pocket img{width:98%;height:98%;object-fit:contain;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55))}
+.pocket svg{width:70%;height:70%;fill:rgba(255,235,210,.045);stroke:rgba(255,235,210,.14);stroke-width:.03}
+.pocket b{position:absolute;font:700 22px 'Gowun Batang',serif;color:rgba(255,235,210,.24)}
+.nm{font-size:13px;line-height:1.25;color:var(--mut);text-align:center}
+.slot.new .pocket{animation:glow 1.4s ease-out 3}
+@keyframes glow{0%{box-shadow:inset 0 8px 16px rgba(0,0,0,.75),0 0 0 0 rgba(243,213,143,.75)}100%{box-shadow:inset 0 8px 16px rgba(0,0,0,.75),0 0 0 20px rgba(243,213,143,0)}}
+.empty{margin:14px 2px 0;color:var(--mut);font-size:14px;text-align:center}
+.cta{position:fixed;left:0;right:0;bottom:0;padding:22px 18px calc(env(safe-area-inset-bottom) + 16px);display:flex;justify-content:center;background:linear-gradient(transparent,var(--v3) 45%)}
+body:not([data-screen=home]) .cta{display:none}
+.btn{width:100%;max-width:420px;min-height:54px;padding:0 26px;border:0;border-radius:999px;font-weight:700;font-size:17px;background:linear-gradient(#f6da95,#c79a45);color:#3a1a08;box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 8px 22px rgba(0,0,0,.45)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:rgba(255,255,255,.08);color:var(--ink);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+
+/* 작업대 */
+#play{flex-direction:column;background:radial-gradient(90% 60% at 50% 44%,#76304a 0,#47182b 45%,#20070e 100%)}
+.bar{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 10px) 14px 8px}
+.back{width:44px;height:44px;flex:none;border:0;border-radius:50%;background:rgba(255,255,255,.09);display:grid;place-items:center}
+.back svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#ttl{flex:1;margin:0;font:700 20px/1.2 'Gowun Batang',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pct{font:700 16px 'Gowun Batang',serif;color:var(--brass2);font-variant-numeric:tabular-nums;min-width:3.2em;text-align:right}
+.prog{height:6px;margin:0 16px;border-radius:9px;background:rgba(0,0,0,.35);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,#c79a45,#fff0c2);transition:width .25s}
+#stage{position:relative;flex:1}
+#stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.nogl{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--mut)}
+#hint{position:absolute;top:14px;left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 16px;border-radius:999px;background:rgba(20,5,10,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;transition:opacity .3s}
+#toast{position:absolute;bottom:16px;left:50%;transform:translate(-50%,10px);opacity:0;padding:9px 18px;border-radius:999px;background:linear-gradient(#f6da95,#c79a45);color:#3a1a08;font-weight:700;font-size:15px;white-space:nowrap;pointer-events:none;transition:.35s}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:10px 10px calc(env(safe-area-inset-bottom) + 14px);background:linear-gradient(transparent,rgba(10,2,5,.55))}
+.tool{appearance:none;border:0;background:none;color:var(--mut);font-size:13px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0;min-height:44px;transition:opacity .3s}
+.ring{--p:0;position:relative;width:60px;height:60px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--brass2) calc(var(--p) * 1%),rgba(255,255,255,.13) 0)}
+.ring::before{content:'';position:absolute;inset:3px;border-radius:50%;background:#2a0c15}
+.ring svg{position:relative;width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tool.on{color:var(--ink)}
+.tool.on .ring::before{background:#5c2337;box-shadow:inset 0 0 0 2px rgba(243,213,143,.65)}
+.tool.done .ring{background:var(--brass2)}
+.tool.rec .ring{animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.08)}}
+#flip .ring{background:rgba(255,255,255,.13)}
+body[data-mode=finale] #tools,body[data-mode=result] #tools{opacity:.3;pointer-events:none}
+body[data-mode=view] #tools,body[data-mode=view] .prog,body[data-mode=view] #pct,body[data-mode=view] #hint,body[data-mode=view] #toast{display:none}
+#viewInfo{display:none;padding:0 16px calc(env(safe-area-inset-bottom) + 16px)}
+body[data-mode=view] #viewInfo{display:block}
+
+/* 카드 */
+.card{width:100%;max-width:440px;margin:0 auto;border-radius:24px;padding:20px 20px 18px;background:linear-gradient(#3e1423,#260a13);border:1px solid rgba(217,181,108,.32);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.lead{margin:0;color:var(--brass2);font-size:15px;font-weight:700}
+.name{margin:4px 0 2px;font:700 30px/1.15 'Gowun Batang',serif;text-wrap:balance}
+.meta{margin:0;color:var(--mut);font-size:14px}
+.story{margin:12px 0 16px;font-size:16px;line-height:1.6}
+.ba{display:grid;grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr);align-items:center;gap:6px;margin:16px 0 4px}
+.ba figure{margin:0;text-align:center}
+.ba img{width:100%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 38%,#14040a,#33101c);box-shadow:inset 0 6px 14px rgba(0,0,0,.7)}
+.ba figcaption{margin-top:4px;font-size:13px;color:var(--mut)}
+.ba svg{width:28px;height:28px;stroke:var(--brass2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.modal{position:fixed;inset:0;z-index:5;display:none;align-items:flex-end;padding:16px 16px calc(env(safe-area-inset-bottom) + 16px);background:linear-gradient(transparent 30%,rgba(10,2,5,.6))}
+.modal.on{display:flex}
+.modal.on .card{animation:up .55s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-screen="home">
+
+<section id="home" class="screen" aria-label="수집장">
+  <div class="case">
+    <div class="head"><h1>반짝 수집장</h1><span><span class="count" id="count">0 / 28</span><span class="vcount" id="vcount"></span></span></div>
+    <p class="sub">직접 찾아내 손끝으로 닦은 동전·메달·뱃지가 장소별로 모여요.</p>
+    <p class="empty" id="empty">아직 비어 있어요. 탐지기를 들고 첫 물건을 찾으러 가볼까요?</p>
+    <div class="basket" id="basket" hidden><div class="thead"><h2>닦을 거리 바구니</h2><span id="bcount"></span></div><div class="brow" id="brow"></div></div>
+    <div id="places" style="margin-top:20px"></div>
+    <div class="tray" style="margin-top:16px"><div class="thead"><h2>작업대 도구</h2><span id="cleanCount"></span></div><div class="tlist" id="tlist"></div></div>
+    <div class="tray" style="margin-top:16px">
+      <div class="thead"><h2>기록 백업</h2></div>
+      <p class="meta" style="margin:0 0 12px">기기를 바꿀 때 이 파일로 수집 기록을 옮길 수 있어요.</p>
+      <div class="row2 half"><button class="btn ghost" id="bkSave">백업 파일 저장</button><button class="btn ghost" id="bkLoad">백업 불러오기</button></div>
+      <p class="meta" id="bkNote" role="status" style="margin:10px 0 0;min-height:1.4em"></p>
+      <input type="file" id="bkFile" accept="application/json,.json" hidden>
+    </div>
+  </div>
+</section>
+<div class="cta"><button class="btn" id="next">찾으러 가기</button></div>
+
+<section id="play" class="screen" aria-label="닦기">
+  <div class="bar">
+    <button class="back" id="back" aria-label="수집장으로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <h2 id="ttl">정체 모를 동전</h2>
+    <span id="pct">0%</span>
+  </div>
+  <div class="prog"><i id="bar"></i></div>
+  <div id="stage"><div id="hint"></div><div id="toast"></div></div>
+  <div id="tools">
+    <button class="tool" data-tool="brush" aria-pressed="true"><span class="ring"><svg viewBox="0 0 32 32"><path d="M20 3l-5 11"/><path d="M11 14h8l2 4H9z"/><path d="M9 18l-2 10M12 18l-1 10M15 18v10M18 18l1 10M21 18l2 10"/></svg></span>붓</button>
+    <button class="tool" data-tool="sponge" aria-pressed="false"><span class="ring"><svg viewBox="0 0 32 32"><rect x="5" y="9" width="22" height="15" rx="4"/><circle cx="11" cy="15" r="1.4"/><circle cx="17" cy="19" r="1.6"/><circle cx="21" cy="14" r="1.2"/><path d="M9 6c1-2 3-2 4 0M19 5c1-2 3-2 4 0"/></svg></span>스펀지</button>
+    <button class="tool" data-tool="cloth" aria-pressed="false"><span class="ring"><svg viewBox="0 0 32 32"><path d="M6 8c4-2 6 2 10 0s6-2 10 0v16c-4-2-6 2-10 0s-6-2-10 0z"/><path d="M16 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg></span>광택천</button>
+    <button class="tool" id="flip"><span class="ring"><svg viewBox="0 0 32 32"><path d="M7 13a9 9 0 0 1 16-4l2 2"/><path d="M25 5v6h-6"/><path d="M25 19a9 9 0 0 1-16 4l-2-2"/><path d="M7 27v-6h6"/></svg></span>뒤집기</button>
+  </div>
+  <div id="viewInfo">
+    <div class="card">
+      <div class="chips" id="vchips" aria-label="변형"></div>
+      <p class="meta" id="vMeta"></p>
+      <p class="story" id="vStory"></p>
+      <div class="fortune" id="vFortune" hidden><small>그때 받은 한마디</small><p id="vFortuneText"></p></div>
+      <div class="row2 h"><button class="btn ghost" id="again">한 번 더 닦기</button><button class="btn ghost sq" id="vShare" aria-label="자랑 카드 만들기"><svg viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button></div>
+    </div>
+  </div>
+</section>
+
+<section id="find" class="screen" aria-label="찾기">
+  <div id="fstage"><canvas id="fcv"></canvas><div id="fhint"></div></div>
+  <div class="bar">
+    <button class="back" id="fback" aria-label="수집장으로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <h2 id="fttl">놀이터</h2>
+    <span class="sig" id="sig" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+  </div>
+</section>
+
+<div class="modal psheet" id="placeSheet" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+  <div class="card">
+    <h3 class="name" id="pTitle">어디로 찾으러 갈까요?</h3>
+    <p class="meta">장소마다 숨어 있는 물건이 달라요.</p>
+    <div class="pgrid" id="pgrid"></div>
+    <button class="btn ghost" id="pclose">닫기</button>
+  </div>
+</div>
+
+<div class="modal" id="found" role="dialog" aria-modal="true" aria-labelledby="fName">
+  <div class="card">
+    <p class="lead">뭔가 찾았어요!</p>
+    <img class="foundimg" id="fImg" alt="">
+    <h3 class="name" id="fName"></h3>
+    <p class="meta" id="fMeta"></p>
+    <div class="row2" style="margin-top:16px">
+      <button class="btn" id="fClean">바로 닦기</button>
+      <button class="btn ghost" id="fMore">바구니에 넣고 더 찾기</button>
+    </div>
+    <button class="linkbtn" id="fHome">바구니에 넣고 수집장으로</button>
+  </div>
+</div>
+
+<div class="modal" id="result" role="dialog" aria-modal="true" aria-labelledby="rName">
+  <div class="card">
+    <p class="lead" id="rLead">새로 수집했어요</p>
+    <h3 class="name" id="rName"></h3>
+    <p class="meta" id="rMeta"></p>
+    <div class="ba">
+      <figure><img id="rBefore" alt="닦기 전"><figcaption>닦기 전</figcaption></figure>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      <figure><img id="rAfter" alt="닦은 후"><figcaption>닦은 후</figcaption></figure>
+    </div>
+    <p class="story" id="rStory"></p>
+    <div class="fortune"><small>오늘의 한마디</small><p id="rFortuneText"></p></div>
+    <p class="unlock" id="rUnlock" hidden></p>
+    <div class="row2 h"><button class="btn" id="keep">수집장에 넣기</button><button class="btn ghost sq" id="rShare" aria-label="자랑 카드 만들기"><svg viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button></div>
+  </div>
+</div>
+
+<div class="modal" id="share" role="dialog" aria-modal="true" aria-labelledby="shareTitle" style="z-index:7">
+  <div class="card">
+    <h3 class="name" id="shareTitle" style="font-size:24px">자랑 카드</h3>
+    <img class="shareimg" id="shareImg" alt="자랑 카드 이미지">
+    <p class="meta" id="shareNote" style="text-align:center;margin-bottom:14px"></p>
+    <div class="row2"><button class="btn" id="shareBtn">공유하기</button><button class="btn ghost" id="shareClose">닫기</button></div>
+  </div>
+</div>
+
+<script type="module" src="app.js?v=1"></script>
+</body>
+</html>
