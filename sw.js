@@ -1,5 +1,5 @@
 // 반짝 수집장 서비스 워커 — 업데이트할 때마다 VERSION을 올리세요.
-const VERSION = 'banjjak-v29';
+const VERSION = 'banjjak-v30';
 const FONTS = 'banjjak-fonts';
 const ASSETS = [
   './',
